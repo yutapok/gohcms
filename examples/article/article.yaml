@@ -1,0 +1,36 @@
+resource: article
+storage:
+  table: articles
+lifecycle:
+  mode: managed
+  status_column: cms_status
+  version_column: cms_version
+fields:
+  id:
+    type: uuid
+    column: id
+    readonly: true
+  title:
+    type: string
+    column: title
+    required: true
+  body:
+    type: text
+    column: body
+  cover_image:
+    type: media
+    column: cover_image_id
+  category_id:
+    type: reference
+    column: category_id
+    resource: category
+  depends_on:
+    type: reference
+    column: depends_on_id
+    resource: article
+  published_at:
+    type: datetime
+    column: published_at
+  finished_at:
+    type: datetime
+    column: finished_at

@@ -1,0 +1,760 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "gohcms Headless API",
+    "version": "1.0.0",
+    "description": "Auto-generated OpenAPI 3.1 specification for content platform"
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/api/article": {
+      "summary": "Manage article collection",
+      "get": {
+        "tags": [
+          "Article"
+        ],
+        "summary": "List article records",
+        "operationId": "listArticle",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of records to return (default: 20)",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Offset for pagination",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by lifecycle status (default: published)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "published",
+                "draft",
+                "finished",
+                "all"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Article"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "offset": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Article"
+        ],
+        "summary": "Create a new article",
+        "operationId": "createArticle",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleCreateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Article"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/article/{id}": {
+      "summary": "Individual article operations",
+      "get": {
+        "tags": [
+          "Article"
+        ],
+        "summary": "Get article by ID",
+        "operationId": "getArticleById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Article"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Article"
+        ],
+        "summary": "Update article by ID",
+        "operationId": "updateArticleById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleCreateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Article"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Article"
+        ],
+        "summary": "Delete article by ID",
+        "operationId": "deleteArticleById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          },
+          "404": {
+            "description": "Record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/article/{id}/finish": {
+      "summary": "Finish article record",
+      "post": {
+        "tags": [
+          "Article"
+        ],
+        "summary": "Finish article by ID",
+        "operationId": "finishArticle",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status transitioned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Article"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Transition error (e.g. prerequisite not published)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/article/{id}/publish": {
+      "summary": "Publish article record",
+      "post": {
+        "tags": [
+          "Article"
+        ],
+        "summary": "Publish article by ID",
+        "operationId": "publishArticle",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status transitioned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Article"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Transition error (e.g. prerequisite not published)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/article/{id}/unpublish": {
+      "summary": "Unpublish article record",
+      "post": {
+        "tags": [
+          "Article"
+        ],
+        "summary": "Unpublish article by ID",
+        "operationId": "unpublishArticle",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status transitioned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Article"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Transition error (e.g. prerequisite not published)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/media": {
+      "summary": "Media Assets Management",
+      "get": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "List all media assets",
+        "operationId": "listMedia",
+        "responses": {
+          "200": {
+            "description": "List of media assets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Media"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Upload a new media asset",
+        "operationId": "uploadMedia",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Binary file to upload"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Uploaded media asset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Media"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Upload error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/media/{id}": {
+      "summary": "Individual Media Asset Operations",
+      "get": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Get media metadata by ID",
+        "operationId": "getMediaById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Found media metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Media"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Media not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Media"
+        ],
+        "summary": "Delete media asset by ID",
+        "operationId": "deleteMediaById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted successfully"
+          },
+          "404": {
+            "description": "Media not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Article": {
+        "type": "object",
+        "description": "Article content entity",
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "category_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cover_image": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Media asset ID (accessible at /media/{id})"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "depends_on": {
+            "type": "string",
+            "description": "Reference ID to article"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "finished"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "version": {
+            "type": "integer"
+          }
+        }
+      },
+      "ArticleCreateInput": {
+        "type": "object",
+        "description": "Input payload for creating a Article",
+        "required": [
+          "title"
+        ],
+        "properties": {
+          "body": {
+            "type": "string"
+          },
+          "category_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cover_image": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Media asset ID (accessible at /media/{id})"
+          },
+          "depends_on": {
+            "type": "string",
+            "description": "Reference ID to article"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Media": {
+        "type": "object",
+        "description": "Uploaded media asset metadata",
+        "required": [
+          "id",
+          "filename",
+          "mime_type",
+          "size_bytes",
+          "url",
+          "created_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "filename": {
+            "type": "string"
+          },
+          "filepath": {
+            "type": "string",
+            "readOnly": true
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "mime_type": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "type": "integer"
+          },
+          "url": {
+            "type": "string",
+            "readOnly": true
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Use X-API-Key header for API key authentication"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "gohcms_live_*",
+        "description": "Use Bearer token for API key authentication"
+      }
+    }
+  }
+}

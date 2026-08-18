@@ -1,0 +1,48 @@
+<div class="cms-modal-content" style="max-width: 800px;">
+    <div class="cms-modal-header">
+        <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Select Media Asset</h2>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                Choose from Media Library or upload a new asset directly
+            </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <!-- Inline Upload -->
+    <div style="margin-bottom: 1.5rem; padding: 1rem; background: #0b1120; border: 1px dashed var(--border-color); border-radius: var(--radius-sm);">
+        <form hx-post="/admin/media/upload-inline?target_field={{.TargetField}}" hx-target="#modal-container" enctype="multipart/form-data" style="display: flex; gap: 0.75rem; align-items: center;">
+            <input type="file" name="file" required style="flex: 1; color: var(--text-primary); font-size: 0.85rem;">
+            <button type="submit" class="btn btn-primary btn-sm">Upload & Select</button>
+        </form>
+    </div>
+
+    <!-- Media Grid -->
+    <div style="max-height: 400px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; padding-right: 0.25rem;">
+        {{range .MediaItems}}
+        <div onclick="selectMedia('{{$.TargetField}}', '{{.ID}}', '{{.Filename}}', '{{.IsImage}}')"
+             style="cursor: pointer; border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow: hidden; background: #0b1120; transition: border-color 0.15s ease, transform 0.15s ease;"
+             onmouseover="this.style.borderColor='var(--color-primary)'; this.style.transform='translateY(-2px)';"
+             onmouseout="this.style.borderColor='var(--border-color)'; this.style.transform='none';">
+            <div style="height: 100px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                {{if .IsImage}}
+                <img src="/media/{{.ID}}" alt="{{.Filename}}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                {{else}}
+                <span style="font-size: 2rem;">📄</span>
+                {{end}}
+            </div>
+            <div style="padding: 0.5rem; font-size: 0.75rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-weight: 500; color: var(--text-primary);">
+                {{.Filename}}
+            </div>
+        </div>
+        {{else}}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; color: var(--text-muted);">
+            No media assets found. Upload one above!
+        </div>
+        {{end}}
+    </div>
+
+    <div style="margin-top: 1.5rem; text-align: right;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+</div>

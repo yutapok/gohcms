@@ -1,0 +1,24 @@
+{{define "content"}}
+<div class="view-header">
+    <div class="view-title-group">
+        <h1>Schema Status & Validation</h1>
+        <div class="view-subtitle">Real-time database schema introspection vs Resource Definition contract</div>
+    </div>
+</div>
+
+<div class="cms-card" style="padding: 2rem;">
+    <h2 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; color: #fff;">Validation Results</h2>
+    
+    {{if .ValidationResult.IsValid}}
+    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--color-success); color: #34d399; padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; font-weight: 600;">
+        ✓ All {{len .Resources}} Resource Definitions strictly match the database schema!
+    </div>
+    {{else}}
+    <div class="alert-error" style="margin-bottom: 1.5rem;">
+        ⚠️ Schema drift or mismatch detected!
+    </div>
+    {{end}}
+
+    <pre style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #cbd5e1; background: #0b1120; padding: 1.25rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color); line-height: 1.6;">{{.ValidationReport}}</pre>
+</div>
+{{end}}

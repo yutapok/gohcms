@@ -1,0 +1,52 @@
+{{define "content"}}
+<div class="header">
+    <div>
+        <h1 class="page-title">Media Library</h1>
+        <p class="page-subtitle">Upload and manage images and media assets</p>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <h3 style="margin-bottom: 1rem;">Upload New Asset</h3>
+    <form action="/admin/media" method="POST" enctype="multipart/form-data" style="display: flex; gap: 1rem; align-items: center;">
+        <input type="file" name="file" required style="padding: 0.5rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); flex: 1;">
+        <button type="submit" class="btn btn-primary">Upload Asset</button>
+    </form>
+</div>
+
+<div class="card">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem;">
+        {{range .MediaItems}}
+        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="height: 140px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                {{if .IsImage}}
+                <img src="/media/{{.ID}}" alt="{{.Filename}}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                {{else}}
+                <span style="font-size: 3rem;">📄</span>
+                {{end}}
+            </div>
+            <div style="padding: 1rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.9rem; word-break: break-all; margin-bottom: 0.25rem;">{{.Filename}}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{.MimeType}} • {{.SizeBytes}} bytes</div>
+                </div>
+                <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <a href="/media/{{.ID}}" target="_blank" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">View</a>
+                    <button class="btn btn-outline" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; color: var(--danger);"
+                            hx-delete="/admin/media/{{.ID}}"
+                            hx-confirm="Are you sure you want to delete this media asset?"
+                            hx-target="closest div.card"
+                            hx-swap="outerHTML">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+        {{else}}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-muted);">
+            No media assets uploaded yet.
+        </div>
+        {{end}}
+    </div>
+</div>
+{{end}}

@@ -1,0 +1,182 @@
+{{define "content"}}
+<div class="view-header">
+    <div class="view-title-group">
+        <h1>{{if .IsEdit}}Edit {{.Resource.Resource}}{{else}}New {{.Resource.Resource}}{{end}}</h1>
+        <div class="view-subtitle">{{if .IsEdit}}Record ID: <code>{{.Record.ID}}</code> (v{{.Record.Version}}){{else}}Create a new record in table <code>{{.Resource.Storage.Table}}</code>{{end}}</div>
+    </div>
+    <div class="view-actions">
+        <a href="/admin/resources/{{.Resource.Resource}}" class="btn btn-secondary">← Back to List</a>
+    </div>
+</div>
+
+<div class="cms-card" style="max-width: 800px; padding: 2rem;">
+    {{if .Error}}
+    <div class="alert-error" style="margin-bottom: 1.5rem;">
+        ⚠️ {{.Error}}
+    </div>
+    {{end}}
+
+    <form method="POST" action="{{if .IsEdit}}/admin/resources/{{.Resource.Resource}}/{{.Record.ID}}{{else}}/admin/resources/{{.Resource.Resource}}{{end}}">
+        {{range $field := .Resource.OrderedFields}}
+            {{$fieldName := $field.Name}}
+            {{$fieldDef := $field.Definition}}
+
+            {{if eq $fieldName "id"}}
+                {{if $.IsEdit}}
+                <!-- Readonly ID in Edit mode -->
+                <div class="form-group">
+                    <label class="form-label">ID (Readonly)</label>
+                    <input type="text" class="form-input" value="{{$.Record.ID}}" disabled style="opacity: 0.6; background: #1e293b;">
+                </div>
+                {{end}}
+            {{else if eq $fieldDef.Type "text"}}
+                <div class="form-group">
+                    <label class="form-label" for="field-{{$fieldName}}">
+                        {{$fieldName}} {{if $fieldDef.Required}}<span style="color: var(--color-danger);">*</span>{{end}}
+                    </label>
+                    <textarea id="field-{{$fieldName}}" name="{{$fieldName}}" class="form-textarea" rows="6">{{if $.IsEdit}}{{index $.Record.Data $fieldName}}{{end}}</textarea>
+                </div>
+            {{else if eq $fieldDef.Type "media"}}
+                <!-- Media Picker Widget -->
+                <div class="form-group">
+                    <label class="form-label" for="field-{{$fieldName}}">
+                        {{$fieldName}} (Media Asset) {{if $fieldDef.Required}}<span style="color: var(--color-danger);">*</span>{{end}}
+                    </label>
+                    <input type="hidden" id="field-{{$fieldName}}" name="{{$fieldName}}" value="{{if $.IsEdit}}{{index $.Record.Data $fieldName}}{{end}}">
+                    
+                    <div style="display: flex; gap: 1rem; align-items: center; background: #0b1120; border: 1px solid var(--border-color); padding: 0.75rem; border-radius: var(--radius-sm);">
+                        <div id="preview-box-{{$fieldName}}" style="width: 70px; height: 70px; background: #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--border-subtle);">
+                            {{if and $.IsEdit (index $.Record.Data $fieldName)}}
+                            <img src="/media/{{index $.Record.Data $fieldName}}" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                            {{else}}
+                            <span style="color: var(--text-muted); font-size: 1.5rem;">🖼️</span>
+                            {{end}}
+                        </div>
+                        <div style="flex: 1;">
+                            <div id="media-name-{{$fieldName}}" style="font-weight: 500; font-size: 0.85rem; margin-bottom: 0.5rem; word-break: break-all;">
+                                {{if and $.IsEdit (index $.Record.Data $fieldName)}}
+                                Media ID: <code>{{index $.Record.Data $fieldName}}</code>
+                                {{else}}
+                                <span style="color: var(--text-muted);">No media asset selected</span>
+                                {{end}}
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" class="btn btn-secondary btn-sm"
+                                        hx-get="/admin/media/picker?target_field={{$fieldName}}"
+                                        hx-target="#modal-container">
+                                    Choose / Upload Media
+                                </button>
+                                <button type="button" class="btn btn-outline btn-sm" style="color: var(--color-danger); border-color: rgba(239, 68, 68, 0.3);"
+                                        onclick="clearMedia('{{$fieldName}}')">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{else if eq $fieldDef.Type "reference"}}
+                <!-- Dynamic Reference Selector (Category, Article DAG, etc.) -->
+                <div class="form-group">
+                    <label class="form-label" for="field-{{$fieldName}}">
+                        {{$fieldName}} (Reference to <code>{{$fieldDef.Resource}}</code>) {{if $fieldDef.Required}}<span style="color: var(--color-danger);">*</span>{{end}}
+                    </label>
+                    <select id="field-{{$fieldName}}" name="{{$fieldName}}" class="form-select">
+                        <option value="">-- None (No Selection) --</option>
+                        {{$currentVal := ""}}
+                        {{if $.IsEdit}}
+                            {{$currentVal = index $.Record.Data $fieldName}}
+                        {{end}}
+                        {{$options := index $.ReferenceOptions $fieldName}}
+                        {{range $options}}
+                            {{if or (not $.IsEdit) (ne .ID $.Record.ID)}}
+                            <option value="{{.ID}}" {{if eq $currentVal .ID}}selected{{end}}>
+                                {{if .Data.name}}{{.Data.name}} (<code>{{.ID}}</code>){{else if .Data.title}}{{.Data.title}} (<code>{{.ID}}</code>){{else}}{{.ID}}{{end}}
+                                {{if .Status}} [{{.Status}}]{{end}}
+                            </option>
+                            {{end}}
+                        {{end}}
+                    </select>
+                </div>
+            {{else if eq $fieldDef.Type "datetime"}}
+                <!-- DateTime Local Input -->
+                <div class="form-group">
+                    <label class="form-label" for="field-{{$fieldName}}">
+                        {{$fieldName}} (YYYY-MM-DD HH:MM) {{if $fieldDef.Required}}<span style="color: var(--color-danger);">*</span>{{end}}
+                    </label>
+                    <input type="datetime-local" id="field-{{$fieldName}}" name="{{$fieldName}}" class="form-input" 
+                           value="{{if $.IsEdit}}{{formatDateTimeLocal (index $.Record.Data $fieldName)}}{{end}}" 
+                           {{if $fieldDef.Required}}required{{end}}>
+                </div>
+            {{else}}
+                <div class="form-group">
+                    <label class="form-label" for="field-{{$fieldName}}">
+                        {{$fieldName}} {{if $fieldDef.Required}}<span style="color: var(--color-danger);">*</span>{{end}}
+                    </label>
+                    <input type="text" id="field-{{$fieldName}}" name="{{$fieldName}}" class="form-input" 
+                           value="{{if $.IsEdit}}{{index $.Record.Data $fieldName}}{{end}}" 
+                           {{if $fieldDef.Required}}required{{end}}>
+                </div>
+            {{end}}
+        {{end}}
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">
+                {{if .IsEdit}}Save Changes{{else}}Create Record{{end}}
+            </button>
+            <a href="/admin/resources/{{.Resource.Resource}}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function selectMedia(fieldName, id, filename, isImage) {
+    document.getElementById('field-' + fieldName).value = id;
+    
+    var nameContainer = document.getElementById('media-name-' + fieldName);
+    nameContainer.textContent = filename + ' (';
+    var codeEl = document.createElement('code');
+    codeEl.textContent = id;
+    nameContainer.appendChild(codeEl);
+    nameContainer.appendChild(document.createTextNode(')'));
+    
+    var previewBox = document.getElementById('preview-box-' + fieldName);
+    previewBox.innerHTML = '';
+    if (isImage === 'true' || isImage === true) {
+        var img = document.createElement('img');
+        img.src = '/media/' + encodeURIComponent(id);
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+        img.style.objectFit = 'contain';
+        previewBox.appendChild(img);
+    } else {
+        var span = document.createElement('span');
+        span.style.fontSize = '1.5rem';
+        span.textContent = '📄';
+        previewBox.appendChild(span);
+    }
+    
+    if (typeof closeModal === 'function') {
+        closeModal();
+    }
+}
+
+function clearMedia(fieldName) {
+    document.getElementById('field-' + fieldName).value = '';
+    
+    var nameContainer = document.getElementById('media-name-' + fieldName);
+    nameContainer.innerHTML = '';
+    var span = document.createElement('span');
+    span.style.color = 'var(--text-muted)';
+    span.textContent = 'No media asset selected';
+    nameContainer.appendChild(span);
+    
+    var previewBox = document.getElementById('preview-box-' + fieldName);
+    previewBox.innerHTML = '';
+    var iconSpan = document.createElement('span');
+    iconSpan.style.color = 'var(--text-muted)';
+    iconSpan.style.fontSize = '1.5rem';
+    iconSpan.textContent = '🖼️';
+    previewBox.appendChild(iconSpan);
+}
+</script>
+{{end}}

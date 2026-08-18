@@ -1,0 +1,124 @@
+{{define "content"}}
+<div class="view-header">
+    <div class="view-title-group">
+        <h1>{{.Resource.Resource}}</h1>
+        <div class="view-subtitle">Timeline / Gantt View — Content schedule, publish timestamps, and dependency hierarchy</div>
+    </div>
+    <div class="view-actions">
+        <!-- View Switcher -->
+        <div class="view-switch-tabs">
+            <a href="/admin/resources/{{.Resource.Resource}}?view=table" class="view-tab">📋 Table</a>
+            <a href="/admin/resources/{{.Resource.Resource}}?view=kanban" class="view-tab">📌 Kanban</a>
+            <a href="/admin/resources/{{.Resource.Resource}}?view=timeline" class="view-tab active">⏳ Timeline</a>
+        </div>
+
+        <a href="/admin/resources/{{.Resource.Resource}}/new" class="btn btn-primary">
+            <span>+ New {{.Resource.Resource}}</span>
+        </a>
+    </div>
+</div>
+
+<div class="timeline-board">
+    <!-- Header Controls & Legend -->
+    <div class="timeline-header-bar">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span class="timeline-today-badge">
+                <span class="pulse-dot"></span> 📍 TODAY: {{.NowFormatted}} (JST)
+            </span>
+            <span style="font-size: 0.8rem; color: var(--text-secondary);">Visual Schedule & Milestones</span>
+        </div>
+        <div class="timeline-legend">
+            <span class="legend-item"><span class="dot status-draft"></span> Draft</span>
+            <span class="legend-item"><span class="dot status-published"></span> Published</span>
+            <span class="legend-item"><span class="dot status-finished"></span> Finished</span>
+        </div>
+    </div>
+
+    <!-- Timeline Axis Ruler Header -->
+    <div class="timeline-ruler-row">
+        <div class="timeline-ruler-info-col">
+            <span>CONTENT ITEM & DATES</span>
+        </div>
+        <div class="timeline-ruler-axis">
+            <div class="ruler-segment"><span>-7 Days</span></div>
+            <div class="ruler-segment"><span>-3 Days</span></div>
+            <div class="ruler-segment today-segment">
+                <span class="ruler-today-pill">📍 Today ({{.Today}})</span>
+            </div>
+            <div class="ruler-segment"><span>+3 Days</span></div>
+            <div class="ruler-segment"><span>+7 Days</span></div>
+            <div class="ruler-segment"><span>+14 Days</span></div>
+        </div>
+        <div style="width: 60px;"></div>
+    </div>
+
+    <!-- Timeline Content Items -->
+    <div class="timeline-items-container">
+        {{range .Records}}
+        <div class="timeline-item">
+            <!-- Left Info Block -->
+            <div class="timeline-info">
+                <div class="timeline-title" title="{{if .Data.title}}{{.Data.title}}{{else}}{{.ID}}{{end}}">
+                    {{if .Data.title}}{{.Data.title}}{{else}}{{.ID}}{{end}}
+                </div>
+                
+                <div class="timeline-meta-row">
+                    {{if .Data.published_at}}
+                    <span class="timeline-date-chip scheduled">
+                        📅 Pub: {{.Data.published_at}}
+                    </span>
+                    {{else if .CreatedAt}}
+                    <span class="timeline-date-chip created">
+                        🕒 Created: {{.CreatedAt.Format "2006-01-02 15:04"}}
+                    </span>
+                    {{end}}
+
+                    {{if .Data.depends_on}}
+                    <span class="kanban-card-dep" title="Prerequisite: {{.Data.depends_on}}">
+                        🔗 Pre: {{.Data.depends_on}}
+                    </span>
+                    {{end}}
+                </div>
+            </div>
+
+            <!-- Right Timeline Track with Today Line -->
+            <div class="timeline-bar-wrapper">
+                <!-- Vertical Grid Guidelines -->
+                <div class="timeline-grid-line line-1"></div>
+                <div class="timeline-grid-line line-2"></div>
+                <div class="timeline-grid-line line-today"></div>
+                <div class="timeline-grid-line line-3"></div>
+                <div class="timeline-grid-line line-4"></div>
+
+                <!-- Timeline Active Bar -->
+                <div class="timeline-bar {{.Status}}" style="
+                    {{if eq .Status "finished"}}
+                        left: 5%; width: 40%;
+                    {{else if eq .Status "published"}}
+                        left: 20%; width: 50%;
+                    {{else}}
+                        left: 45%; width: 45%;
+                    {{end}}
+                ">
+                    <span class="bar-label">
+                        <span class="bar-status-tag">{{.Status}} (v{{.Version}})</span>
+                        {{if .Data.published_at}}
+                        <span class="bar-date-text">{{.Data.published_at}}</span>
+                        {{end}}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; gap: 4px; align-items: center;">
+                <a href="/admin/resources/{{$.Resource.Resource}}/{{.ID}}/edit" class="btn btn-secondary btn-sm">Edit</a>
+            </div>
+        </div>
+        {{else}}
+        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+            No records available for timeline.
+        </div>
+        {{end}}
+    </div>
+</div>
+{{end}}

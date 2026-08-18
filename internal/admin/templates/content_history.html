@@ -1,0 +1,68 @@
+<div class="cms-modal-content">
+    <div class="cms-modal-header">
+        <div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Audit Trail & Revisions</h2>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                Record: <code>{{.Record.ID}}</code> (Current: v{{.Record.Version}}, Status: {{.Record.Status}})
+            </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal()">×</button>
+    </div>
+
+    <!-- Audit Logs Section -->
+    <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <span>🛡️</span> Mutation Audit Logs
+    </h3>
+    <div style="background: #0b1120; border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 1.5rem; max-height: 200px; overflow-y: auto;">
+        <table class="cms-table" style="font-size: 0.8rem;">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Operation</th>
+                    <th>Actor</th>
+                    <th>Request ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .AuditLogs}}
+                <tr>
+                    <td style="color: var(--text-secondary);">{{.Timestamp.Format "01-02 15:04:05"}}</td>
+                    <td>
+                        <span style="font-weight: 600; text-transform: uppercase; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(59, 130, 246, 0.15); color: #60a5fa;">
+                            {{.Operation}}
+                        </span>
+                    </td>
+                    <td>{{.Actor}} ({{.ActorType}})</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-muted);">{{.RequestID}}</td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1rem;">No audit logs found.</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Revisions Section -->
+    <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <span>📸</span> Revision Snapshots
+    </h3>
+    <div style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 220px; overflow-y: auto;">
+        {{range .Revisions}}
+        <div style="background: #0b1120; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">
+                <span style="color: #60a5fa;">Version {{.Version}}</span>
+                <span style="color: var(--text-muted); font-size: 0.75rem;">{{.CreatedAt.Format "2006-01-02 15:04:05"}} by {{.Actor}}</span>
+            </div>
+            <pre style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #94a3b8; background: #070d19; padding: 0.5rem; border-radius: 4px; overflow-x: auto; white-space: pre-wrap;">{{.SnapshotJSON}}</pre>
+        </div>
+        {{else}}
+        <div style="text-align: center; color: var(--text-muted); padding: 1rem;">No revisions found.</div>
+        {{end}}
+    </div>
+
+    <div style="margin-top: 1.5rem; text-align: right;">
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+    </div>
+</div>

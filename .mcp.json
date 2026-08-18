@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "gohcms": {
+      "command": "go",
+      "args": [
+        "run",
+        "./cmd/cms",
+        "mcp",
+        "--demo",
+        "--schema-dir",
+        "./examples/article"
+      ]
+    }
+  }
+}

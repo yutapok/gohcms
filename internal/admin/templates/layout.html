@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - gohcms Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="cms-body">
+    <div class="cms-layout">
+        <!-- Sidebar -->
+        <aside class="cms-sidebar">
+            <div class="cms-brand">
+                <div class="cms-logo-icon">⚡</div>
+                <div class="cms-logo-text">
+                    <span class="brand-title">gohcms</span>
+                    <span class="brand-badge">Admin</span>
+                </div>
+            </div>
+
+            <nav class="cms-nav">
+                <div class="nav-section-title">CONTENT RESOURCES</div>
+                <ul class="nav-list">
+                    {{range .Resources}}
+                    <li class="nav-item {{if eq $.CurrentResource .Resource}}active{{end}}">
+                        <a href="/admin/resources/{{.Resource}}">
+                            <span class="nav-icon">📄</span>
+                            <span class="nav-label">{{.Resource}}</span>
+                            <span class="nav-table-badge">{{.Storage.Table}}</span>
+                        </a>
+                    </li>
+                    {{end}}
+                </ul>
+
+                <div class="nav-section-title" style="margin-top: 2rem;">DEVELOPER & SYSTEM</div>
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/admin/media">
+                            <span class="nav-icon">🖼️</span>
+                            <span class="nav-label">Media Library</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/api-keys">
+                            <span class="nav-icon">🔑</span>
+                            <span class="nav-label">API Keys</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/api/openapi.json" target="_blank">
+                            <span class="nav-icon">📖</span>
+                            <span class="nav-label">OpenAPI 3.1 Spec</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/status">
+                            <span class="nav-icon">🛡️</span>
+                            <span class="nav-label">Schema Validation</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="cms-sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AD</div>
+                    <div class="user-info">
+                        <span class="user-name">Admin User</span>
+                        <span class="user-role">Superadmin</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="cms-main">
+            <header class="cms-topbar">
+                <div class="topbar-breadcrumb">
+                    <span class="crumb-root">CMS</span>
+                    {{if .CurrentResource}}
+                    <span class="crumb-separator">/</span>
+                    <span class="crumb-item">{{.CurrentResource}}</span>
+                    {{end}}
+                </div>
+                <div class="topbar-actions">
+                    <div id="flash-message" class="flash-container"></div>
+                </div>
+            </header>
+
+            <div class="cms-content-wrapper">
+                {{template "content" .}}
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Container for HTMX -->
+    <div id="modal-container" class="cms-modal-backdrop" style="display: none;"></div>
+
+    <script>
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.target.id === 'modal-container') {
+                document.getElementById('modal-container').style.display = 'flex';
+            }
+        });
+        function closeModal() {
+            const m = document.getElementById('modal-container');
+            m.style.display = 'none';
+            m.innerHTML = '';
+        }
+    </script>
+</body>
+</html>

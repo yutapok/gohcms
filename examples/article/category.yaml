@@ -1,0 +1,18 @@
+resource: category
+storage:
+  table: categories
+lifecycle:
+  mode: none
+fields:
+  id:
+    type: uuid
+    column: id
+    readonly: true
+  name:
+    type: string
+    column: name
+    required: true
+  slug:
+    type: string
+    column: slug
+    required: true

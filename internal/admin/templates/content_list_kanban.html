@@ -1,0 +1,168 @@
+{{define "content"}}
+<div class="view-header">
+    <div class="view-title-group">
+        <h1>{{.Resource.Resource}}</h1>
+        <div class="view-subtitle">Kanban Board — Drag & drop cards to manage lifecycle states</div>
+    </div>
+    <div class="view-actions">
+        <!-- View Switcher -->
+        <div class="view-switch-tabs">
+            <a href="/admin/resources/{{.Resource.Resource}}?view=table" class="view-tab">📋 Table</a>
+            <a href="/admin/resources/{{.Resource.Resource}}?view=kanban" class="view-tab active">📌 Kanban</a>
+            <a href="/admin/resources/{{.Resource.Resource}}?view=timeline" class="view-tab">⏳ Timeline</a>
+        </div>
+
+        <a href="/admin/resources/{{.Resource.Resource}}/new" class="btn btn-primary">
+            <span>+ New {{.Resource.Resource}}</span>
+        </a>
+    </div>
+</div>
+
+<div class="kanban-board">
+    <!-- Draft Column -->
+    <div class="kanban-column" id="col-draft">
+        <div class="kanban-col-header">
+            <div class="kanban-col-title" style="color: var(--status-draft);">
+                <span>📝</span> Draft
+            </div>
+            <div class="kanban-col-count">{{len .DraftRecords}}</div>
+        </div>
+        <div class="kanban-cards-container" data-status="draft" id="cards-draft">
+            {{range .DraftRecords}}
+            <div class="kanban-card" data-id="{{.ID}}" id="kanban-card-{{.ID}}">
+                <div class="kanban-card-title">
+                    {{if .Data.title}}{{.Data.title}}{{else}}{{.ID}}{{end}}
+                </div>
+                {{if .Data.body}}
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.4; max-height: 2.8em; overflow: hidden;">
+                    {{.Data.body}}
+                </div>
+                {{end}}
+                {{if .Data.depends_on}}
+                <div style="margin-top: 0.25rem;">
+                    <span class="kanban-card-dep">🔗 {{.Data.depends_on}}</span>
+                </div>
+                {{end}}
+                <div class="kanban-card-meta">
+                    <span>v{{.Version}}</span>
+                    <div style="display: flex; gap: 4px;">
+                        <a href="/admin/resources/{{$.Resource.Resource}}/{{.ID}}/edit" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;">Edit</a>
+                        <button hx-post="/admin/resources/{{$.Resource.Resource}}/{{.ID}}/publish" hx-target="#kanban-card-{{.ID}}" hx-swap="outerHTML" class="btn btn-success btn-sm" style="padding: 2px 6px; font-size: 0.7rem;">Publish</button>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+    </div>
+
+    <!-- Published Column -->
+    <div class="kanban-column" id="col-published">
+        <div class="kanban-col-header">
+            <div class="kanban-col-title" style="color: var(--status-published);">
+                <span>🚀</span> Published
+            </div>
+            <div class="kanban-col-count">{{len .PublishedRecords}}</div>
+        </div>
+        <div class="kanban-cards-container" data-status="published" id="cards-published">
+            {{range .PublishedRecords}}
+            <div class="kanban-card" data-id="{{.ID}}" id="kanban-card-{{.ID}}">
+                <div class="kanban-card-title">
+                    {{if .Data.title}}{{.Data.title}}{{else}}{{.ID}}{{end}}
+                </div>
+                {{if .Data.body}}
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem; line-height: 1.4; max-height: 2.8em; overflow: hidden;">
+                    {{.Data.body}}
+                </div>
+                {{end}}
+                {{if .Data.depends_on}}
+                <div style="margin-top: 0.25rem;">
+                    <span class="kanban-card-dep">🔗 {{.Data.depends_on}}</span>
+                </div>
+                {{end}}
+                <div class="kanban-card-meta">
+                    <span>v{{.Version}}</span>
+                    <div style="display: flex; gap: 4px;">
+                        <a href="/admin/resources/{{$.Resource.Resource}}/{{.ID}}/edit" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;">Edit</a>
+                        <button hx-post="/admin/resources/{{$.Resource.Resource}}/{{.ID}}/finish" hx-target="#kanban-card-{{.ID}}" hx-swap="outerHTML" class="btn btn-warning btn-sm" style="padding: 2px 6px; font-size: 0.7rem;">Finish</button>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+    </div>
+
+    <!-- Finished Column -->
+    <div class="kanban-column" id="col-finished">
+        <div class="kanban-col-header">
+            <div class="kanban-col-title" style="color: var(--status-finished);">
+                <span>📦</span> Finished / Archived
+            </div>
+            <div class="kanban-col-count">{{len .FinishedRecords}}</div>
+        </div>
+        <div class="kanban-cards-container" data-status="finished" id="cards-finished">
+            {{range .FinishedRecords}}
+            <div class="kanban-card" data-id="{{.ID}}" id="kanban-card-{{.ID}}">
+                <div class="kanban-card-title">
+                    {{if .Data.title}}{{.Data.title}}{{else}}{{.ID}}{{end}}
+                </div>
+                {{if .Data.depends_on}}
+                <div style="margin-top: 0.25rem;">
+                    <span class="kanban-card-dep">🔗 {{.Data.depends_on}}</span>
+                </div>
+                {{end}}
+                <div class="kanban-card-meta">
+                    <span>v{{.Version}}</span>
+                    <div style="display: flex; gap: 4px;">
+                        <a href="/admin/resources/{{$.Resource.Resource}}/{{.ID}}/edit" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;">Edit</a>
+                        <button hx-post="/admin/resources/{{$.Resource.Resource}}/{{.ID}}/unpublish" hx-target="#kanban-card-{{.ID}}" hx-swap="outerHTML" class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;">Re-open</button>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+    </div>
+</div>
+
+<!-- Sortable.js D&D initialization -->
+<script>
+    ['cards-draft', 'cards-published', 'cards-finished'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            new Sortable(el, {
+                group: 'kanban',
+                animation: 150,
+                onEnd: function (evt) {
+                    const card = evt.item;
+                    const recordId = card.getAttribute('data-id');
+                    const targetStatus = evt.to.getAttribute('data-status');
+                    const sourceStatus = evt.from.getAttribute('data-status');
+
+                    if (targetStatus !== sourceStatus) {
+                        let endpoint = '';
+                        if (targetStatus === 'published') endpoint = 'publish';
+                        else if (targetStatus === 'finished') endpoint = 'finish';
+                        else if (targetStatus === 'draft') endpoint = 'unpublish';
+
+                        fetch(`/admin/resources/{{.Resource.Resource}}/${recordId}/${endpoint}`, {
+                            method: 'POST',
+                            headers: { 'HX-Request': 'true' }
+                        }).then(res => {
+                            if (!res.ok) {
+                                res.text().then(msg => {
+                                    alert('Status transition failed: ' + msg);
+                                    window.location.reload();
+                                });
+                            } else {
+                                window.location.reload();
+                            }
+                        }).catch(err => {
+                            alert('Network error: ' + err);
+                            window.location.reload();
+                        });
+                    }
+                }
+            });
+        }
+    });
+</script>
+{{end}}

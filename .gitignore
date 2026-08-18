@@ -1,0 +1,29 @@
+# Binaries
+/cms
+/gohcms
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test and coverage artifacts
+*.out
+*.test
+
+# Local files & demo state
+.gohcms_demo.json
+uploads/
+
+# Environment & Secrets
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+
+# IDE & Editor files
+.vscode/
+.idea/
+.DS_Store
+.antigravity/
