@@ -11,7 +11,7 @@
 > [!WARNING]
 > **Project Status: Experimental Prototype (v0.3.x)**  
 > `gohcms` は現在、Go 言語と AI/MCP 連携の新しい設計思想を探求する **実験的プロトタイプ（Proof-of-Concept）** です。  
-> コア API、CLI オプション、スキーマ定義の仕様は今後予告なく変更される可能性があり、**現時点での本番環境（Production）への導入は推奨いたしません**。ローカル環境での試用、AI エージェント運用のプロトタイピング、機能検証、アイデアのディスカッション・Issue を心より歓迎します！
+> コア API、CLI オプション、スキーマ定義の仕様は今後予告なく変更される可能性があり、**現時点での本番環境（Production）への導入は推奨いたしません**。
 
 <p align="center">
   <img src="./assets/infographic.jpg" alt="gohcms Architecture & Core Features Infographic" width="100%" />
